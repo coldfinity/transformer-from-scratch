@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import math
 
-from torch.nn.modules import transformer
-
 
 class InputEmbedding(nn.Module):
     def __init__(self, d_model: int, vocab_size: int):
@@ -108,7 +106,7 @@ class MultiHeadAttentionBlock(nn.Module):
     def forward(self, q, k, v, mask):
         query = self.w_q(q) # (Batch, sequence length, d_model) -> (Batch, sequence length, d_model)
         key = self.w_k(k) # (Batch, sequence length, d_model) -> (Batch, sequence length, d_model)
-        values = self.w_v(v) # (Batch, sequence length, d_model) -> (Batch, sequence length, d_model)
+        value = self.w_v(v) # (Batch, sequence length, d_model) -> (Batch, sequence length, d_model)
 
         # (Batch, sequnce length, d_model) -> (Batch, sequence length, h, d_k) -> (Batch, h, seq_len, d_k)
         query = query.view(query.shape[0], query.shape[1], self.h, self.d_k).transpose(1,2)
@@ -172,7 +170,7 @@ class DecoderBlock(nn.Module):
         return x
 
 class Decoder(nn.Module):
-    def __init__(self, layers) -> None:
+    def __init__(self, layers: nn.ModuleList) -> None:
         super().__init__()
         self.layers = layers
         self.norm = LayerNormalization()
@@ -195,7 +193,7 @@ class ProjectionLayer(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, encoder: Encoder, decoder: Decoder, src_embed: InputEmbedding, tgt_embed: InputEmbedding, src_pos: PositionalEncoding, tgt_pos: PositionalEncoding, proj_layer: PositionalEncoding) -> None:
+    def __init__(self, encoder: Encoder, decoder: Decoder, src_embed: InputEmbedding, tgt_embed: InputEmbedding, src_pos: PositionalEncoding, tgt_pos: PositionalEncoding, proj_layer: ProjectionLayer) -> None:
         super().__init__()
         self.encoder = encoder
         self.decoder = decoder
@@ -208,9 +206,9 @@ class Transformer(nn.Module):
     def encode(self, src, src_mask):
         src = self.src_embed(src)
         src = self.src_pos(src)
-        src = self.encoder(src, src_mask)
+        return self.encoder(src, src_mask)
 
-    def decoder(self, encoder_output, src_mask, tgt, tgt_mask):
+    def decode(self, encoder_output, src_mask, tgt, tgt_mask):
         tgt = self.tgt_embed(tgt)
         tgt = self.tgt_pos(tgt)
         return self.decoder(tgt, encoder_output, src_mask, tgt_mask)
