@@ -1,1 +1,14 @@
 .venv/
+
+weights/
+
+tokenizer_*.json
+
+runs/
+
+__pycache__/
+*.pyc
+
+.ipynb_checkpoints/
+
+.DS_Store
