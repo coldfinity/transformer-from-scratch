@@ -68,5 +68,13 @@ $$
 
 $d_k = d_{model} / h$
 
+## Combining
+Repeated $N$ times, output of the previous is sent to the next one and the output of the last one is sent to the decoder.
+Containing one `MultiHeadAttention`, two `Add&Norm` and one `FeedForward`. 
+
+# Decoder
+Repeated $N$ times, `Masked Multi-Head Attention` from decoder, `MultiHeadAttention` is a cross attention  where $Q, K$ is from encoder and $V$ is from decoder, one `FeedForward` and 3 `Add&Norm`.
+Two masks because the self-attention uses the target mast and the cross attention uses the source mask from the encoder. 
+
 ### Sources
 Source: "Attention Is All You Need", Google, https://arxiv.org/pdf/1706.03762
