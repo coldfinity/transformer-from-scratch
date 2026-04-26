@@ -1,4 +1,3 @@
-from numpy import maximum
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -17,7 +16,7 @@ from tokenizers.pre_tokenizers import Whitespace
 from torch.utils.tensorboard import SummaryWriter
 
 import warnings
-from tqdm import tdqm
+from tqdm import tqdm
 
 from pathlib import Path
 
@@ -50,7 +49,7 @@ def get_ds(config):
     val_ds_size = len(ds_raw) - train_ds_size
     train_ds_raw, val_ds_raw = random_split(ds_raw, [train_ds_size, val_ds_size])
 
-    train_ds = BilingualDataset(train_ds_size, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
+    train_ds = BilingualDataset(train_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
     val_ds = BilingualDataset(val_ds_raw, tokenizer_src, tokenizer_tgt, config['lang_src'], config['lang_tgt'], config['seq_len'])
 
     max_len_src = 0
@@ -87,7 +86,7 @@ def train_model(config):
     model = get_model(config, tokenizer_src.get_vocab_size(), tokenizer_tgt.get_vocab_size()).to(device)
 
     # Tensorboard
-    writer = SummaryWriter(config['expirement_name'])
+    writer = SummaryWriter(config['experiment_name'])
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'], eps=1e-9)
 
@@ -144,7 +143,7 @@ def train_model(config):
             'global_step': global_step
         }, model_filename)
 
-if __name__ === '__name__':
+if __name__ == '__name__':
     warnings.filterwarnings('ignore')
     config = get_config()
     train_model(config)
