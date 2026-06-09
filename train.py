@@ -1,8 +1,6 @@
-from datasets.load import glob
 import torch
 import torch.nn as nn
-from torch.return_types import mode
-from torch.utils.data import Dataset, DataLoader, random_split
+from torch.utils.data import DataLoader, random_split
 
 from dataset import BilingualDataset, causal_mask
 from model import build_transformer
@@ -167,6 +165,7 @@ def train_model(config):
         model_filename = get_weights_file_path(config, config['preload'])
         print(f"Preloading Model {model_filename}")
         state = torch.load(model_filename)
+        model.load_state_dict(state['model_state_dict'])
         inital_epoch = state['epoch'] + 1
         optimizer.load_state_dict(state['optimizer_state_dict'])
         global_step = state['global_step']
